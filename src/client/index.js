@@ -7,6 +7,7 @@ import { BrowserRouter } from 'react-router';
 import { CodeSplitProvider, rehydrateState } from 'code-split-component';
 import { Provider } from 'react-redux';
 import configureStore from '../shared/redux/configureStore';
+import IntlProvider from '../shared/components/IntlProvider';
 import ReactHotLoader from './components/ReactHotLoader';
 import DemoApp from '../shared/components/DemoApp';
 import TaskRoutesExecutor from './components/TaskRoutesExecutor';
@@ -19,6 +20,11 @@ const store = configureStore(
   // Server side rendering would have mounted our state on this global.
   window.APP_STATE,
 );
+
+/*let locale = selectIntlLocale()(store.getState);
+console.log('l', locale);
+!window.Intl && polyfillIntlApi(locale);
+//registerLocaleData(locale);*/
 
 function renderApp(TheApp) {
   // We use the code-split-component library to provide us with code splitting
@@ -33,22 +39,24 @@ function renderApp(TheApp) {
   rehydrateState().then(codeSplitState =>
     render(
       <ReactHotLoader>
-        <CodeSplitProvider state={codeSplitState}>
-          <Provider store={store}>
-            <BrowserRouter>
-              {
-                // The TaskRoutesExecutor makes sure any data tasks are
-                // executed prior to our route being loaded.
-                // @see ./src/shared/routeTasks/
-                routerProps => (
-                  <TaskRoutesExecutor {...routerProps} dispatch={store.dispatch}>
-                    <TheApp />
-                  </TaskRoutesExecutor>
-                )
-              }
-            </BrowserRouter>
-          </Provider>
-        </CodeSplitProvider>
+          <CodeSplitProvider state={codeSplitState}>
+            <Provider store={store}>
+              <IntlProvider>
+                <BrowserRouter>
+                  {
+                    // The TaskRoutesExecutor makes sure any data tasks are
+                    // executed prior to our route being loaded.
+                    // @see ./src/shared/routeTasks/
+                    routerProps => (
+                      <TaskRoutesExecutor {...routerProps} dispatch={store.dispatch}>
+                        <TheApp />
+                      </TaskRoutesExecutor>
+                    )
+                  }
+                </BrowserRouter>
+              </IntlProvider>
+            </Provider>
+          </CodeSplitProvider>
       </ReactHotLoader>,
       container,
     ),

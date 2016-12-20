@@ -28,6 +28,9 @@ export default {
   // Where does our build output live?
   buildOutputPath: './build',
 
+  // Path for locale data
+  localeDataOutputPath: './src/locale-data',
+
   // Should we optimize production builds (i.e. minify etc).
   // Sometimes you don't want this to happen to aid in debugging complex
   // problems.  Having this configuration flag here allows you to quickly

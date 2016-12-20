@@ -8,10 +8,13 @@ import { Provider } from 'react-redux';
 import { CodeSplitProvider, createRenderContext } from 'code-split-component';
 import Helmet from 'react-helmet';
 import generateHTML from './generateHTML';
+import IntlProvider from '../../../shared/components/IntlProvider';
+import { setAvailableLocales } from '../../../shared/actions/intl';
 import DemoApp from '../../../shared/components/DemoApp';
 import runTasksForLocation from '../../../shared/routeTasks/runTasksForLocation';
 import configureStore from '../../../shared/redux/configureStore';
 import envConfig from '../../../../config/private/environment';
+import sharedProjConfig from '../../../../config/shared/project';
 
 /**
  * An express middleware that is capabable of service our React application,
@@ -45,6 +48,12 @@ function reactApplicationMiddleware(request: $Request, response: $Response) {
   const store = configureStore();
   const { dispatch, getState } = store;
 
+  // Populate store with available locales
+  dispatch(setAvailableLocales(sharedProjConfig.locales));
+
+  //let locale = selectIntlLocale()(getState());
+  //!window.Intl && polyfillIntlApi(locale)
+
   // Set up a function we can call to render the app and return the result via
   // the response.
   const renderApp = () => {
@@ -61,7 +70,9 @@ function reactApplicationMiddleware(request: $Request, response: $Response) {
       <CodeSplitProvider context={codeSplitContext}>
         <ServerRouter location={request.url} context={reactRouterContext}>
           <Provider store={store}>
-            <DemoApp />
+            <IntlProvider>
+              <DemoApp />
+            </IntlProvider>
           </Provider>
         </ServerRouter>
       </CodeSplitProvider>,

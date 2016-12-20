@@ -90,5 +90,5 @@ export default {
   // issues with your React components.
   ssrEnabled: getBoolVar('SSR_ENABLED', true),
   // The port on which the client bundle development server should run.
-  clientDevServerPort: getIntEnvVar('CLIENT_DEVSERVER_PORT', 7331),
+  clientDevServerPort: getIntEnvVar('CLIENT_DEVSERVER_PORT', 7331)
 };

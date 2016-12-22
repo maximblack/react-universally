@@ -15,9 +15,9 @@ import security from './middleware/security';
 import intl from './middleware/intl';
 import clientBundle from './middleware/clientBundle';
 import serviceWorker from './middleware/serviceWorker';
+import offlinePage from './middleware/offlinePage';
 import errorHandlers from './middleware/errorHandlers';
-import projConfig from '../../config/private/project';
-import envConfig from '../../config/private/environment';
+import config from '../../config';
 
 // Create our express based server.
 const app = express();
@@ -42,16 +42,21 @@ app.use(...intl);
 // more information.
 // Note: the service worker needs to be served from the http root of your
 // application for it to work correctly.
-if (process.env.NODE_ENV === 'production') {
-  app.get(`/${projConfig.serviceWorker.fileName}`, serviceWorker);
+if (process.env.NODE_ENV === 'production'
+  && config.serviceWorker.enabled) {
+  app.get(`/${config.serviceWorker.fileName}`, serviceWorker);
+  app.get(
+    `${config.bundles.client.webPath}${config.serviceWorker.offlinePageFileName}`,
+    offlinePage,
+  );
 }
 
 // Configure serving of our client bundle.
-app.use(projConfig.bundles.client.webPath, clientBundle);
+app.use(config.bundles.client.webPath, clientBundle);
 
 // Configure static serving of our "public" root http path static files.
 // Note: these will be served off the root (i.e. '/') of our application.
-app.use(express.static(pathResolve(appRootDir.get(), projConfig.publicAssetsPath)));
+app.use(express.static(pathResolve(appRootDir.get(), config.publicAssetsPath)));
 
 // The React application middleware.
 app.get('*', reactApplication);
@@ -60,8 +65,8 @@ app.get('*', reactApplication);
 app.use(...errorHandlers);
 
 // Create an http listener for our express app.
-const listener = app.listen(envConfig.port, envConfig.host, () =>
-  console.log(`Server listening on port ${envConfig.port}`),
+const listener = app.listen(config.port, config.host, () =>
+  console.log(`Server listening on port ${config.port}`),
 );
 
 // We export the listener as it will be handy for our development hot reloader,

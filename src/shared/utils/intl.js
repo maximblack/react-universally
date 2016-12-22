@@ -38,6 +38,7 @@ export function getTranslationMessages (locale) {
 }
 
 export function polyfillIntlApi (locale) {
+  console.log('polyfill intl api');
   return System.import('intl')
     .then(() => System.import(`../../locale-data/intl/${locale}`))
 }
@@ -55,6 +56,7 @@ export function polyfillNodeIntlApi (locale) {
 }
 
 export function registerLocaleData (locale) {
+  console.log('registerLocaleData');
   const localeData = require(`../../locale-data/react-intl/${locale}`)
 
   addLocaleData(localeData)

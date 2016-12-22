@@ -12,19 +12,12 @@ import appRootDir from 'app-root-dir';
 import cookieParser from 'cookie-parser';
 import reactApplication from './middleware/reactApplication';
 import security from './middleware/security';
+import intl from './middleware/intl';
 import clientBundle from './middleware/clientBundle';
 import serviceWorker from './middleware/serviceWorker';
 import errorHandlers from './middleware/errorHandlers';
 import projConfig from '../../config/private/project';
 import envConfig from '../../config/private/environment';
-import sharedProjConfig from '../../config/shared/project';
-import requestLanguage from 'express-request-language';
-import { polyfillNodeIntlApi } from '../shared/utils/intl';
-
-const { locales } = sharedProjConfig;
-
-// Ensure Intl on node
-polyfillNodeIntlApi(locales);
 
 // Create our express based server.
 const app = express();
@@ -41,19 +34,8 @@ app.use(compression());
 // Read cookies from request.
 app.use(cookieParser());
 
-// Request language from header and cookies.
-app.use(requestLanguage({
-  languages: locales,
-  queryName: 'lang',
-  cookie: {
-    name: 'lang',
-    options: {
-      path: '/',
-      maxAge: 3650 * 24 * 3600 * 1000, // 10 years in miliseconds
-    },
-    url: '/lang/{language}',
-  },
-}));
+// Intl middlewares
+app.use(...intl);
 
 // When in production mode, we will serve our service worker which was generated
 // by the offline-plugin webpack plugin. See the webpack plugins section for

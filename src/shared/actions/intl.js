@@ -26,6 +26,7 @@ export function setLocale(locale: string) : ThunkAction {
     };
 
     const localeData = require(`../../locale-data/react-intl/${locale}`)
+
     addLocaleData(localeData);
 
     dispatch(setLocaleSuccess({

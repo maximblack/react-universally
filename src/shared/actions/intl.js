@@ -1,9 +1,10 @@
 /* @flow */
 /* eslint-disable import/prefer-default-export */
 
-import { addLocaleData } from 'react-intl'
 import type { Language } from '../types/model';
 import type { Action, ThunkAction } from '../types/redux';
+import { formatTranslationMessages } from '../utils/intl';
+import { safeConfigGet } from '../utils/config';
 
 function setLocaleStart(locale: string) : Action {
   return { type: 'SET_LOCALE_START', payload: locale };
@@ -21,21 +22,19 @@ export function setLocale(locale: string) : ThunkAction {
   return (dispatch, getState, { axios }) => {
     dispatch(setLocaleStart(locale));
 
-    const messages = {
-      'app.header.test': 'Testing locales, ' + locale
-    };
+    return axios
+      .get(`http://${safeConfigGet(['host'])}:${safeConfigGet(['port'])}/getTranslations/${locale}`)
+      .then(({ data }) => dispatch(
+        setLocaleSuccess({
+          locale,
+          messages: formatTranslationMessages(data)
+        })
+      )).then(() => {
+        if (process.env.IS_CLIENT) {
+          const maxAge = 3650 * 24 * 3600; // 10 years in seconds
+          document.cookie = `lang=${locale};path=/;max-age=${maxAge}`;
+        }
+      });
 
-    const localeData = require(`../../locale-data/react-intl/${locale}`)
-
-    addLocaleData(localeData);
-
-    dispatch(setLocaleSuccess({
-      locale,
-      messages
-    }));
-
-    /*return axios
-      .get(`getLocale/${locale}`)
-      .then(({ data }) => dispatch(setLocaleEnd(data)));*/
   };
 }

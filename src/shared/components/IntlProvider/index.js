@@ -1,7 +1,7 @@
 import React from 'react'
 import { IntlProvider } from 'react-intl'
 import { connect } from 'react-redux'
-import { selectIntlState } from '../../reducers/intl/index'
+import { selectIntlState } from '../../reducers/intl'
 
 export default connect(selectIntlState)(({ locale, initialNow, messages, children }) => (
     <IntlProvider

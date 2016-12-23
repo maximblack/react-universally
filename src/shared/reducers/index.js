@@ -5,9 +5,9 @@ import type { Reducer } from 'redux';
 import type { Action } from '../types/redux';
 
 import posts, * as FromPosts from './posts';
-import intl from './intl/index';
+import intl from './intl';
 import type { State as PostsState } from './posts';
-import type { State as IntlState } from './intl/index';
+import type { State as IntlState } from './intl';
 
 // -----------------------------------------------------------------------------
 // EXPORTED REDUCER STATE TYPE

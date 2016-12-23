@@ -3,17 +3,12 @@
 import fs from 'fs';
 import appRootDir from 'app-root-dir';
 import { dirname, resolve as pathResolve } from 'path';
-import projConfig from '../../config/private/project';
-import sharedProjConfig from '../../config/shared/project';
+import config from '../../config';
 
-const { locales } = sharedProjConfig;
-
-console.log(locales, pathResolve(
-  appRootDir.get(), projConfig.localeDataOutputPath)
-);
+const { locales } = config;
 
 locales.forEach(createLocaleDataFiles.bind(null, pathResolve(
-  appRootDir.get(), projConfig.localeDataOutputPath)
+  appRootDir.get(), config.localeDataPath)
 ));
 
 function copyFile (sourcePath, targetPath) {

@@ -19,7 +19,7 @@ export function getLocaleData (locale) {
   return {locale, messages}
 }
 
-export function getTranslationMessages (locale) {
+/*export function getTranslationMessages (locale) {
   let formattedMessages = {}
   let messages
 
@@ -35,12 +35,11 @@ export function getTranslationMessages (locale) {
   }
 
   return formattedMessages
-}
+}*/
 
 export function polyfillIntlApi (locale) {
-  console.log('polyfill intl api');
-  return System.import('intl')
-    .then(() => System.import(`../../locale-data/intl/${locale}`))
+  return import('intl')
+    .then(() => import(`../../locale-data/intl/${locale}`))
 }
 
 export function polyfillNodeIntlApi (locale) {
@@ -56,8 +55,7 @@ export function polyfillNodeIntlApi (locale) {
 }
 
 export function registerLocaleData (locale) {
-  console.log('registerLocaleData');
-  const localeData = require(`../../locale-data/react-intl/${locale}`)
-
-  addLocaleData(localeData)
+  import(`../../locale-data/react-intl/${locale}`).then((localeData) => {
+    addLocaleData(localeData)
+  })
 }

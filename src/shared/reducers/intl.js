@@ -1,93 +1,75 @@
-import {
-  SET_LOCALE_START,
-  SET_LOCALE_SUCCESS,
-  SET_LOCALE_ERROR,
-} from '../constants';
+/* @flow */
 
-const query = `
-  query ($locale:String!) {
-    intl (locale:$locale) {
-      id
-      message
-    }
-  }
-`;
+import { createSelector } from 'reselect';
+import type { Reducer } from 'redux';
+import type { Action } from '../types/redux';
+import type { Language } from '../types/model';
 
-export function setLocale({ locale }) {
-  return async (dispatch, getState, { graphqlRequest }) => {
-    dispatch({
-      type: SET_LOCALE_START,
-      payload: {
+// -----------------------------------------------------------------------------
+// EXPORTED REDUCER STATE TYPE
+
+export type State = { [locale: { key: string }]: Language };
+
+// -----------------------------------------------------------------------------
+// PRIVATES
+
+export const KEY = 'intl';
+export const LOCALE_KEY = 'locale';
+export const AVAILABLE_LOCALES_KEY = 'available_locales';
+
+const defaultState = {
+  initialNow: Date.now()
+};
+
+// -----------------------------------------------------------------------------
+// REDUCER
+
+function intl(state: State = defaultState, action: Action) : State {
+  switch (action.type) {
+    case 'SET_AVAILABLE_LOCALES':
+      return Object.assign({}, state, {
+        [AVAILABLE_LOCALES_KEY]: action.payload,
+      });
+    case 'SET_LOCALE_START':
+      const locale = state[action.payload] ? action.payload : state.locale;
+      return Object.assign({}, state, {
         locale,
-      },
-    });
-
-    try {
-      const { data } = await graphqlRequest(query, { locale });
-      const messages = data.intl.reduce((msgs, msg) => {
-        msgs[msg.id] = msg.message; // eslint-disable-line no-param-reassign
-        return msgs;
-      }, {});
-      dispatch({
-        type: SET_LOCALE_SUCCESS,
-        payload: {
-          locale,
-          messages,
-        },
+        newLocale: action.payload,
       });
-
-      // remember locale for every new request
-      if (process.env.BROWSER) {
-        const maxAge = 3650 * 24 * 3600; // 10 years in seconds
-        document.cookie = `lang=${locale};path=/;max-age=${maxAge}`;
-      }
-    } catch (error) {
-      dispatch({
-        type: SET_LOCALE_ERROR,
-        payload: {
-          locale,
-          error,
+    case 'SET_LOCALE_SUCCESS':
+      return Object.assign({}, state, {
+          locale: action.payload.locale,
+          newLocale: null,
+          messages: {
+            ...state.messages,
+            [action.payload.locale]: action.payload.messages,
+          }
         },
+      );
+    case 'SET_LOCALE_ERROR':
+      return Object.assign({}, state, {
+        newLocale: null,
       });
-      return false;
-    }
-
-    return true;
-  };
+  }
+  return state;
 }
 
+// -----------------------------------------------------------------------------
+// EXPORTED SELECTORS
 
-/*import { createDuck } from 'redux-duck'
-import { createSelector } from 'reselect'
-import { getLocaleData, registerLocaleData } from '../utils/intl'
+export const selectIntlState = () => (state: State) => state[KEY];
 
-export const KEY = 'intl'
-
-export const initialState = {}
-
-export const duck = createDuck(KEY)
-
-export const CHANGE_LOCALE = duck.defineType('CHANGE_LOCALE')
-
-export const changeLocale = duck.createAction(CHANGE_LOCALE)
-
-export const selectIntlState = () => (state) => state[KEY]
+export const selectAvailableLanguages = () => createSelector(
+  selectIntlState(),
+  (subState) => subState[AVAILABLE_LOCALES_KEY]
+);
 
 export const selectIntlLocale = () => createSelector(
   selectIntlState(),
-  (substate) => substate.locale
-)
+  (subState) => subState[LOCALE_KEY]
+);
 
-export default duck.createReducer({
-  [CHANGE_LOCALE]: (state, {payload}) => {
-    if (payload === state.locale) {
-      return state
-    }
+// -----------------------------------------------------------------------------
+// EXPORTED REDUCER
 
-    const {locale, messages} = getLocaleData(payload)
-
-    registerLocaleData(locale)
-
-    return {locale, messages}
-  },
-}, initialState)*/
+export default (intl: Reducer<State, Action>);

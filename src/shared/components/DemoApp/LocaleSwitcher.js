@@ -3,7 +3,7 @@
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 import { setLocale } from '../../actions/intl';
-import { selectIntlLocale, selectAvailableLanguages } from '../../reducers/intl/index';
+import { selectIntlLocale, selectAvailableLanguages } from '../../reducers/intl';
 
 function LanguageSwitcher({ currentLocale, availableLocales, setLocale }) {
 
@@ -15,15 +15,25 @@ function LanguageSwitcher({ currentLocale, availableLocales, setLocale }) {
   const localeName = (locale) => localeDict[locale] || locale;
 
   return (
-    <div>
+    <div style={{
+      position: 'absolute',
+    }}>
       {availableLocales.map(locale => (
         <span key={locale}>
           {isSelected(locale) ? (
-            <span>{localeName(locale)}</span>
+            <span style={{
+              padding: '10px',
+              border: '1px solid black',
+            }}>{localeName(locale)}</span>
           ) : (
             // github.com/yannickcr/eslint-plugin-react/issues/945
             // eslint-disable-next-line react/jsx-indent
             <div
+              style={{
+                padding: '10px',
+                display: 'inline-block',
+                cursor: 'pointer',
+              }}
               //href={`?lang=${locale}`}
               onClick={(e) => {
                 setLocale(locale);

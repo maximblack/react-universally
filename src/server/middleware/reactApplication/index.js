@@ -9,7 +9,7 @@ import { CodeSplitProvider, createRenderContext } from 'code-split-component';
 import Helmet from 'react-helmet';
 import generateHTML from './generateHTML';
 import IntlProvider from '../../../shared/components/IntlProvider';
-import { setAvailableLocales } from '../../../shared/actions/intl';
+import { setAvailableLocales, setLocale } from '../../../shared/actions/intl';
 import DemoApp from '../../../shared/components/DemoApp';
 import runTasksForLocation from '../../../shared/routeTasks/runTasksForLocation';
 import configureStore from '../../../shared/redux/configureStore';
@@ -19,7 +19,7 @@ import config from '../../../../config';
  * An express middleware that is capabable of service our React application,
  * supporting server side rendering of the application.
  */
-function reactApplicationMiddleware(request: $Request, response: $Response) {
+async function reactApplicationMiddleware(request: $Request, response: $Response) {
   // We should have had a nonce provided to us.  See the server/index.js for
   // more information on what this is.
   if (typeof response.locals.nonce !== 'string') {
@@ -48,10 +48,13 @@ function reactApplicationMiddleware(request: $Request, response: $Response) {
   const { dispatch, getState } = store;
 
   // Populate store with available locales
-  dispatch(setAvailableLocales(sharedProjConfig.locales));
+  dispatch(setAvailableLocales(config.locales));
 
-  //let locale = selectIntlLocale()(getState());
-  //!window.Intl && polyfillIntlApi(locale)
+  // Get locale from request
+  const locale = request.language;
+
+  // Set initial locale
+  await dispatch(setLocale(locale));
 
   // Set up a function we can call to render the app and return the result via
   // the response.

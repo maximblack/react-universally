@@ -1,30 +1,52 @@
 /* @flow */
 
 import requestLanguage from 'express-request-language';
+import { readFileSync } from 'fs';
+import { resolve as pathResolve } from 'path';
+import appRootDir from 'app-root-dir';
 import type { Middleware, $Request, $Response, NextFunction } from 'express';
-import projConfig from '../../../config/private/project';
-import envConfig from '../../../config/private/environment';
-import { polyfillNodeIntlApi } from '../../shared/utils/intl';
-import sharedProjConfig from '../../../config/shared/project';
+import { polyfillNodeIntlApi, registerLocaleData } from '../../shared/utils/intl';
+import config from '../../../config';
 
 // Ensure Intl on node
-polyfillNodeIntlApi(sharedProjConfig.locales);
+polyfillNodeIntlApi(config.locales);
 
-// Attach a unique "nonce" to every response.  This allows use to declare
-// inline scripts as being safe for execution against our content security policy.
-// @see https://helmetjs.github.io/docs/csp/
-function nonceMiddleware(req: $Request, res: $Response, next: NextFunction) {
-  //res.locals.nonce = uuid(); // eslint-disable-line no-param-reassign
-  next();
-}
+// Register locale data for each locale
+config.locales.map(registerLocaleData);
+
+// An express middleware that is responsible for providing translations on demand.
+export const getTranslation = function (req: $Request, res: $Response) {
+
+  const locale = req.params.locale;
+
+  if (!config.locales.includes(locale)) {
+    res.status(400).send(`Locale '${locale}' not supported`);
+  }
+
+  let localeData;
+  try {
+    localeData = readFileSync(
+      pathResolve(
+        appRootDir.get(),
+        config.translationsPath, `${locale}.json`
+      )
+    );
+
+  } catch (err) {
+    if (err.code === 'ENOENT') {
+      res.status(500).send(`Locale '${locale}' not found`);
+    }
+  }
+
+  res.send(JSON.parse(localeData));
+
+};
 
 const intlMiddleware = [
-  nonceMiddleware,
-
   // A middleware to figure out a request's language tag by parsing Accept-Language header and stored cookies.
   // @see https://github.com/tinganho/express-request-language
   requestLanguage({
-    languages: sharedProjConfig.locales,
+    languages: config.locales,
     queryName: 'lang',
     cookie: {
       name: 'lang',
@@ -35,7 +57,6 @@ const intlMiddleware = [
       url: '/lang/{language}',
     },
   }),
-
 ];
 
 export default (intlMiddleware : Array<Middleware>);

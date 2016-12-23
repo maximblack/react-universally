@@ -48,6 +48,12 @@ const config = {
   // Where does our build output live?
   buildOutputPath: './build',
 
+  // Path to locale data
+  localeDataPath: './src/locale-data',
+
+  // Path to the translations
+  translationsPath: './src/translations',
+
   // Should we optimize production builds (i.e. minify etc).
   // Sometimes you don't want this to happen to aid in debugging complex
   // problems.  Having this configuration flag here allows you to quickly
@@ -151,6 +157,13 @@ const config = {
     enabled: true,
     url: 'https://cdn.polyfill.io/v2/polyfill.min.js',
   },
+
+  // Available locales
+  locales: [
+    'en',
+    'ru',
+    'ro'
+  ],
 
   // Configuration for the HTML pages (headers/titles/scripts/css/etc).
   // We make use of react-helmet to consume the values below.
@@ -360,6 +373,7 @@ const config = {
         ].filter(x => x != null),
 
         plugins: [
+          "syntax-dynamic-import",
           // Required to support react hot loader.
           mode === 'development'
             ? 'react-hot-loader/babel'
@@ -464,6 +478,9 @@ export const clientConfig = filterObject(
   {
     // This is here as an example showing that you can expose environment
     // variables too.
+    host: true,
+    port: true,
+    locales: true,
     welcomeMessage: true,
     // We only need to expose the enabled flag of the service worker.
     serviceWorker: {

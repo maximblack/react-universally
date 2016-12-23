@@ -5,26 +5,26 @@ const glob = require('glob')
 const readline = require('readline')
 const {resolve: resolvePath} = require('path')
 const {transform} = require('babel-core')
+import config from '../../config';
 
-global.__TENSION_METAFILE__ = undefined
-const {locales} = require('../src/server/config')
+const babelConfig = config.plugins.babelConfig({
+  target: 'client',
+  mode: 'production'
+});
+
+const { locales } = config;
+
+const plugins = babelConfig.plugins;
+plugins.push(['react-intl']);
 
 extractIntlMessages({
   babel: {
-    presets: [
-      'react',
-      ['latest', { es2015: { modules: false } }]
-    ],
-    plugins: [
-      'transform-object-rest-spread',
-      'transform-es2015-destructuring',
-      'transform-class-properties',
-      ['react-intl']
-    ]
+    presets: babelConfig.presets,
+    plugins
   },
   locales,
-  filesToParsePattern: `${__dirname}/../src/shared/**/!(*.test).js`, 
-  translationsPath: resolvePath(__dirname, '../src/translations'),
+  filesToParsePattern: `${__dirname}/../../src/shared/**/!(*.test).js`,
+  translationsPath: resolvePath(__dirname, '../../src/translations'),
 })
 
 function animateProgress (message, amountOfDots = 3) {
@@ -95,7 +95,7 @@ function extractIntlMessages({babel, locales, filesToParsePattern, translationsP
       return Promise.all(files.map((fileName) => extractFromFile(translationMaps, babel, fileName)))
     })
     .then(() => {
-      doneCurrentTask()      
+      doneCurrentTask()
       for (const locale of locales) {
         const translationFileName = `${translationsPath}/${locale}.json`
         doneCurrentTask = task(`Writing translation messages for ${locale} to: ${translationFileName}`)
@@ -116,7 +116,7 @@ function extractIntlMessages({babel, locales, filesToParsePattern, translationsP
 }
 
 function task (message) {
-  progress = animateProgress(message)
+  const progress = animateProgress(message)
   process.stdout.write(message)
 
   return (error) => {
@@ -128,4 +128,3 @@ function task (message) {
     process.stdout.write('\n')
   }
 }
-

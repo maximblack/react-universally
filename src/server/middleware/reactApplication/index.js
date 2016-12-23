@@ -13,8 +13,6 @@ import { setAvailableLocales } from '../../../shared/actions/intl';
 import DemoApp from '../../../shared/components/DemoApp';
 import runTasksForLocation from '../../../shared/routeTasks/runTasksForLocation';
 import configureStore from '../../../shared/redux/configureStore';
-import envConfig from '../../../../config/private/environment';
-import sharedProjConfig from '../../../../config/shared/project';
 import config from '../../../../config';
 
 /**

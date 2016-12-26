@@ -22,7 +22,7 @@ const container = document.querySelector('#app');
 // Create our Redux store.
 const store = configureStore(
   // Server side rendering would have mounted our state on this global.
-  window.__APP_STATE__,
+  window.__APP_STATE__, // eslint-disable-line no-underscore-dangle
 );
 
 const locales = safeConfigGet(['locales']);
@@ -42,9 +42,7 @@ function renderApp(TheApp) {
   // to do as it will ensure that our React checksum for the client will match
   // the content returned by the server.
   // @see https://github.com/ctrlplusb/code-split-component
-  rehydrateState().then(() => {
-    //debugger;
-  }).then(codeSplitState =>
+  rehydrateState().then(codeSplitState =>
     render(
       <ReactHotLoader>
           <CodeSplitProvider state={codeSplitState}>

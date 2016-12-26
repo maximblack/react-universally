@@ -28,9 +28,9 @@ const store = configureStore(
 const locales = safeConfigGet(['locales']);
 locales.map(registerLocaleData);
 
-let locale = selectIntlLocale()(store.getState());
+/*let locale = selectIntlLocale()(store.getState());
 //!window.Intl && polyfillIntlApi(locale);
-//registerLocaleData(locale);*/
+//registerLocaleData(locale);*!/*/
 
 function renderApp(TheApp) {
   // We use the code-split-component library to provide us with code splitting
@@ -45,24 +45,24 @@ function renderApp(TheApp) {
   rehydrateState().then(codeSplitState =>
     render(
       <ReactHotLoader>
-          <CodeSplitProvider state={codeSplitState}>
-            <Provider store={store}>
-              <IntlProvider>
-                <BrowserRouter>
-                  {
-                    // The TaskRoutesExecutor makes sure any data tasks are
-                    // executed prior to our route being loaded.
-                    // @see ./src/shared/routeTasks/
-                    routerProps => (
-                      <TaskRoutesExecutor {...routerProps} dispatch={store.dispatch}>
-                        <TheApp />
-                      </TaskRoutesExecutor>
-                    )
-                  }
-                </BrowserRouter>
-              </IntlProvider>
-            </Provider>
-          </CodeSplitProvider>
+        <CodeSplitProvider state={codeSplitState}>
+          <Provider store={store}>
+            <IntlProvider>
+              <BrowserRouter>
+                {
+                  // The TaskRoutesExecutor makes sure any data tasks are
+                  // executed prior to our route being loaded.
+                  // @see ./src/shared/routeTasks/
+                  routerProps => (
+                    <TaskRoutesExecutor {...routerProps} dispatch={store.dispatch}>
+                      <TheApp />
+                    </TaskRoutesExecutor>
+                  )
+                }
+              </BrowserRouter>
+            </IntlProvider>
+          </Provider>
+        </CodeSplitProvider>
       </ReactHotLoader>,
       container,
     ),
@@ -78,6 +78,8 @@ if (process.env.NODE_ENV === 'development' && module.hot) {
     '../shared/components/DemoApp',
     () => renderApp(require('../shared/components/DemoApp').default),
   );
+  // Accept changes to translations for hot reloading.
+  module.hot.accept('./i18n');
 }
 
 // Execute the first render of our app.

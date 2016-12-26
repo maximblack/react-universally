@@ -25,6 +25,7 @@ export const getTranslation = function (req: $Request, res: $Response) {
 
   let localeData;
   try {
+    // Using readFileSync here instead of require, because require is caching the file contents
     localeData = readFileSync(
       pathResolve(
         appRootDir.get(),

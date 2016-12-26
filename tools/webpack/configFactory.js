@@ -6,6 +6,7 @@ import webpack from 'webpack';
 import OfflinePlugin from 'offline-plugin';
 import AssetsPlugin from 'assets-webpack-plugin';
 import nodeExternals from 'webpack-node-externals';
+import DashboardPlugin from 'webpack-dashboard/plugin';
 import ExtractTextPlugin from 'extract-text-webpack-plugin';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
 import appRootDir from 'app-root-dir';
@@ -189,6 +190,7 @@ export default function webpackConfigFactory(buildOptions: BuildOptions) {
     },
 
     plugins: removeEmpty([
+      ifDev(() => new DashboardPlugin()),
       // Required support for code-split-component, which provides us with our
       // code splitting functionality.
       //

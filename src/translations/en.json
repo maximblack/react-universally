@@ -2,6 +2,6 @@
   {
     "id": "app.header.test",
     "defaultMessage": "Testing locales, default",
-    "message": "Testing: en"
+    "message": "Testing: en test"
   }
 ]

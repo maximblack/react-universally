@@ -12,8 +12,10 @@ function Header() {
       <LocaleSwitcher />
       <Logo />
       <h1>React, Universally</h1>
-      <FormattedDate weekday="long" value={new Date(1459832991883)}/>
-      <h4><FormattedMessage id="app.header.test" defaultMessage="Testing locales, default" /></h4>
+      Today is <FormattedDate weekday="long" value={new Date()} />
+      <h4>
+        <FormattedMessage id="app.header.test" defaultMessage="Testing locales, default" />
+      </h4>
       <strong>
         A starter kit giving you the minimum requirements for a modern universal react application.
       </strong>

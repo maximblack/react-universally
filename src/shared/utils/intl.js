@@ -15,7 +15,7 @@ export function formatTranslationMessages(messages) {
 
 export function polyfillIntlApi(locale) {
   return import('intl')
-    .then(() => import(`../../locale-data/intl/${locale}`))
+    .then(() => import(`../../locale-data/intl/${locale}`));
 }
 
 export function polyfillNodeIntlApi(locale) {
@@ -29,7 +29,7 @@ export function polyfillNodeIntlApi(locale) {
 }
 
 export function registerLocaleData(locale) {
-  import(`../../locale-data/react-intl/${locale}`).then((localeData) => {
+  return import(`../../locale-data/react-intl/${locale}`).then((localeData) => {
     addLocaleData(localeData);
   });
 }

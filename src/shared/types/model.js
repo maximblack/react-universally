@@ -8,5 +8,6 @@ export type Post = {
 };
 
 export type Language = {
-  locale: string
+  locale: string,
+  messages: object
 };

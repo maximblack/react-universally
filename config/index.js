@@ -124,7 +124,7 @@ const config = {
   // and it is served by the "server" bundle.
   serviceWorker: {
     // Enabled?
-    enabled: true,
+    enabled: false,
     // Service worker name
     fileName: 'sw.js',
     // Paths to the public assets which should be included within our
@@ -162,8 +162,14 @@ const config = {
   locales: [
     'en',
     'ru',
-    'ro'
+    'ro',
   ],
+
+  // Cookies configuration
+  cookies: {
+    localeName: 'lang',
+    localeMaxAge: '10y',
+  },
 
   // Configuration for the HTML pages (headers/titles/scripts/css/etc).
   // We make use of react-helmet to consume the values below.
@@ -373,7 +379,14 @@ const config = {
         ].filter(x => x != null),
 
         plugins: [
-          "syntax-dynamic-import",
+          [
+            'import',
+            {
+              libraryName: 'antd',
+              style: 'css',
+            },
+          ],
+          'syntax-dynamic-import',
           // Required to support react hot loader.
           mode === 'development'
             ? 'react-hot-loader/babel'
@@ -481,6 +494,7 @@ export const clientConfig = filterObject(
     host: true,
     port: true,
     locales: true,
+    cookies: true,
     welcomeMessage: true,
     // We only need to expose the enabled flag of the service worker.
     serviceWorker: {

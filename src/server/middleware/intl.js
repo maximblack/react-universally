@@ -2,6 +2,7 @@
 
 import requestLanguage from 'express-request-language';
 import { readFileSync } from 'fs';
+import ms from 'ms';
 import { resolve as pathResolve } from 'path';
 import appRootDir from 'app-root-dir';
 import type { Middleware, $Request, $Response, NextFunction } from 'express';
@@ -16,7 +17,6 @@ config.locales.map(registerLocaleData);
 
 // An express middleware that is responsible for providing translations on demand.
 export const getTranslation = function (req: $Request, res: $Response) {
-
   const locale = req.params.locale;
 
   if (!config.locales.includes(locale)) {
@@ -29,10 +29,9 @@ export const getTranslation = function (req: $Request, res: $Response) {
     localeData = readFileSync(
       pathResolve(
         appRootDir.get(),
-        config.translationsPath, `${locale}.json`
-      )
+        config.translationsPath, `${locale}.json`,
+      ),
     );
-
   } catch (err) {
     if (err.code === 'ENOENT') {
       res.status(500).send(`Locale '${locale}' not found`);
@@ -40,7 +39,6 @@ export const getTranslation = function (req: $Request, res: $Response) {
   }
 
   res.send(JSON.parse(localeData));
-
 };
 
 const intlMiddleware = [
@@ -50,10 +48,10 @@ const intlMiddleware = [
     languages: config.locales,
     queryName: 'lang',
     cookie: {
-      name: 'lang',
+      name: config.cookies.localeName,
       options: {
         path: '/',
-        maxAge: 3650 * 24 * 3600 * 1000, // 10 years in miliseconds
+        maxAge: ms(config.cookies.localeMaxAge) / 1000,
       },
       url: '/lang/{language}',
     },

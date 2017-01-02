@@ -6,14 +6,12 @@ import { render } from 'react-dom';
 import { BrowserRouter } from 'react-router';
 import { CodeSplitProvider, rehydrateState } from 'code-split-component';
 import { Provider } from 'react-redux';
-import { addLocaleData } from 'react-intl';
 import configureStore from '../shared/redux/configureStore';
 import IntlProvider from '../shared/components/IntlProvider';
 import ReactHotLoader from './components/ReactHotLoader';
 import DemoApp from '../shared/components/DemoApp';
 import TaskRoutesExecutor from './components/TaskRoutesExecutor';
-import { polyfillIntlApi, registerLocaleData } from '../shared/utils/intl';
-import { selectIntlLocale } from '../shared/reducers/intl';
+import { registerLocaleData } from '../shared/utils/intl';
 import { safeConfigGet } from '../shared/utils/config';
 
 // Get the DOM Element that will host our React application.
@@ -26,11 +24,6 @@ const store = configureStore(
 );
 
 const locales = safeConfigGet(['locales']);
-locales.map(registerLocaleData);
-
-/*let locale = selectIntlLocale()(store.getState());
-//!window.Intl && polyfillIntlApi(locale);
-//registerLocaleData(locale);*!/*/
 
 function renderApp(TheApp) {
   // We use the code-split-component library to provide us with code splitting
@@ -42,7 +35,9 @@ function renderApp(TheApp) {
   // to do as it will ensure that our React checksum for the client will match
   // the content returned by the server.
   // @see https://github.com/ctrlplusb/code-split-component
-  rehydrateState().then(codeSplitState =>
+  Promise.all(locales.map(registerLocaleData))
+    .then(rehydrateState)
+    .then(codeSplitState =>
     render(
       <ReactHotLoader>
         <CodeSplitProvider state={codeSplitState}>

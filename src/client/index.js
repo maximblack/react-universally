@@ -11,19 +11,34 @@ import IntlProvider from '../shared/components/IntlProvider';
 import ReactHotLoader from './components/ReactHotLoader';
 import DemoApp from '../shared/components/DemoApp';
 import TaskRoutesExecutor from './components/TaskRoutesExecutor';
-import { registerLocaleData } from '../shared/utils/intl';
+import { registerLocaleData, polyfillIntlApi } from '../shared/utils/intl';
+import { selectIntlLocale } from '../shared/reducers/intl';
 import { safeConfigGet } from '../shared/utils/config';
 
 // Get the DOM Element that will host our React application.
 const container = document.querySelector('#app');
 
-// Create our Redux store.
-const store = configureStore(
-  // Server side rendering would have mounted our state on this global.
-  window.__APP_STATE__, // eslint-disable-line no-underscore-dangle
-);
+function createApp() {
+  let codeSplitState;
+  let locale;
+  let store;
 
-const locales = safeConfigGet(['locales']);
+  return Promise.resolve(store = configureStore(
+      // Server side rendering would have mounted our state on this global.
+      window.__APP_STATE__, // eslint-disable-line no-underscore-dangle
+    ))
+    .then(() => (locale = selectIntlLocale()(store.getState())))
+    .then(() => !window.Intl && polyfillIntlApi(locale))
+    .then(() => registerLocaleData(locale))
+    /*.then(() => {
+      const locales = safeConfigGet(['locales']);
+      // Register locale data for all locales
+      return Promise.all(locales.map(registerLocaleData));
+    })*/
+    .then(() => rehydrateState())
+    .then(stateRehydrated => (codeSplitState = stateRehydrated))
+    .then(() => ({ store, codeSplitState }));
+}
 
 function renderApp(TheApp) {
   // We use the code-split-component library to provide us with code splitting
@@ -35,9 +50,7 @@ function renderApp(TheApp) {
   // to do as it will ensure that our React checksum for the client will match
   // the content returned by the server.
   // @see https://github.com/ctrlplusb/code-split-component
-  Promise.all(locales.map(registerLocaleData))
-    .then(rehydrateState)
-    .then(codeSplitState =>
+  return createApp().then(({ store, codeSplitState }) =>
     render(
       <ReactHotLoader>
         <CodeSplitProvider state={codeSplitState}>

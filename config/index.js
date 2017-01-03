@@ -274,6 +274,8 @@ const config = {
           'source-map-support',
           'uuid',
           'user-home',
+          'intl',
+          'react-intl',
         ],
 
         // Specify any additional dependencies that you would like to

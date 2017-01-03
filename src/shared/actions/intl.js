@@ -5,7 +5,7 @@ import ms from 'ms';
 import type { Language } from '../types/model';
 import type { Action, ThunkAction } from '../types/redux';
 import { selectLoadedMessages } from '../reducers/intl';
-import { formatTranslationMessages } from '../utils/intl';
+import { formatTranslationMessages, registerLocaleData } from '../utils/intl';
 import { safeConfigGet } from '../utils/config';
 
 const LOCALE_KEY = safeConfigGet(['cookies', 'localeName']);
@@ -41,18 +41,20 @@ export function setLocale(locale: string) : ThunkAction {
       }, false));
     }
 
+    let messages;
     return axios
       .get(`http://${safeConfigGet(['host'])}:${safeConfigGet(['port'])}/getTranslations/${locale}`)
-      .then(({ data }) => dispatch(
+      .then(({ data }) => (messages = data) && registerLocaleData(locale))
+      .then(() => dispatch(
         setLocaleSuccess({
           locale,
-          messages: formatTranslationMessages(data),
+          messages: formatTranslationMessages(messages),
         }),
-      )).then(() => {
+      ))
+      .then(() => {
         if (process.env.IS_CLIENT) {
           document.cookie = `${LOCALE_KEY}=${locale};path=/;max-age=${LOCALE_MAX_AGE}`;
         }
       });
-
   };
 }

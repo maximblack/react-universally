@@ -5,13 +5,16 @@ import type { Reducer } from 'redux';
 import type { Action } from '../types/redux';
 
 import posts, * as FromPosts from './posts';
+import intl from './intl';
 import type { State as PostsState } from './posts';
+import type { State as IntlState } from './intl';
 
 // -----------------------------------------------------------------------------
 // EXPORTED REDUCER STATE TYPE
 
 export type State = {
   posts: PostsState,
+  intl: IntlState
 };
 
 // -----------------------------------------------------------------------------
@@ -19,6 +22,7 @@ export type State = {
 
 const rootReducer: Reducer<State, Action> = combineReducers({
   posts,
+  intl
 });
 
 // -----------------------------------------------------------------------------

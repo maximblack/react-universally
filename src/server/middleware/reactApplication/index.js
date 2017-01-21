@@ -9,6 +9,8 @@ import { CodeSplitProvider, createRenderContext } from 'code-split-component';
 import Helmet from 'react-helmet';
 import { runJobs } from 'react-jobs/ssr';
 import generateHTML from './generateHTML';
+import IntlProvider from '../../../shared/components/IntlProvider';
+import { setAvailableLocales, setLocale } from '../../../shared/actions/intl';
 import DemoApp from '../../../shared/components/DemoApp';
 import configureStore from '../../../shared/redux/configureStore';
 import config from '../../../../config';
@@ -17,7 +19,7 @@ import config from '../../../../config';
  * An express middleware that is capabable of service our React application,
  * supporting server side rendering of the application.
  */
-function reactApplicationMiddleware(request: $Request, response: $Response) {
+async function reactApplicationMiddleware(request: $Request, response: $Response) {
   // We should have had a nonce provided to us.  See the server/index.js for
   // more information on what this is.
   if (typeof response.locals.nonce !== 'string') {
@@ -44,7 +46,20 @@ function reactApplicationMiddleware(request: $Request, response: $Response) {
 
   // Create the redux store.
   const store = configureStore();
-  const { getState } = store;
+  const { dispatch, getState } = store;
+
+  // Populate store with available locales
+  dispatch(setAvailableLocales(config.locales));
+
+  // Get locale from request
+  const locale = request.language;
+
+  // Set initial locale
+  await dispatch(setLocale(locale));
+
+  // First create a context for <ServerRouter>, which will allow us to
+  // query for the results of the render.
+  const reactRouterContext = createServerRenderContext();
 
   // First create a context for <ServerRouter>, which will allow us to
   // query for the results of the render.
@@ -59,7 +74,9 @@ function reactApplicationMiddleware(request: $Request, response: $Response) {
     <CodeSplitProvider context={codeSplitContext}>
       <ServerRouter location={request.url} context={reactRouterContext}>
         <Provider store={store}>
-          <DemoApp />
+          <IntlProvider>
+            <DemoApp />
+          </IntlProvider>
         </Provider>
       </ServerRouter>
     </CodeSplitProvider>

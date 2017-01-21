@@ -5,8 +5,10 @@ import express from 'express';
 import compression from 'compression';
 import { resolve as pathResolve } from 'path';
 import appRootDir from 'app-root-dir';
+import cookieParser from 'cookie-parser';
 import reactApplication from './middleware/reactApplication';
 import security from './middleware/security';
+import intl, { getTranslation } from './middleware/intl';
 import clientBundle from './middleware/clientBundle';
 import serviceWorker from './middleware/serviceWorker';
 import offlinePage from './middleware/offlinePage';
@@ -24,6 +26,15 @@ app.use(...security);
 
 // Gzip compress the responses.
 app.use(compression());
+
+// Read cookies from request.
+app.use(cookieParser());
+
+// Intl middlewares.
+app.use(...intl);
+
+// Middleware for providing translations messages
+app.get('/getTranslations/:locale', getTranslation);
 
 // When in production mode, we will serve our service worker which was generated
 // by the offline-plugin webpack plugin. See the webpack plugins section for

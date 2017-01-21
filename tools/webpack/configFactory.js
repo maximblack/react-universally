@@ -6,7 +6,6 @@ import webpack from 'webpack';
 import OfflinePlugin from 'offline-plugin';
 import AssetsPlugin from 'assets-webpack-plugin';
 import nodeExternals from 'webpack-node-externals';
-import DashboardPlugin from 'webpack-dashboard/plugin';
 import ExtractTextPlugin from 'extract-text-webpack-plugin';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
 import appRootDir from 'app-root-dir';
@@ -200,7 +199,6 @@ export default function webpackConfigFactory(buildOptions: BuildOptions) {
     },
 
     plugins: removeEmpty([
-      ifDev(() => new DashboardPlugin()),
       // Required support for code-split-component, which provides us with our
       // code splitting functionality.
       //
@@ -363,6 +361,7 @@ export default function webpackConfigFactory(buildOptions: BuildOptions) {
               ].filter(x => x != null),
 
               plugins: [
+                'syntax-dynamic-import',
                 // Required to support react hot loader.
                 ifDevClient('react-hot-loader/babel'),
                 // This decorates our components with  __self prop to JSX elements,

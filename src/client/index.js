@@ -11,10 +11,8 @@ import configureStore from '../shared/redux/configureStore';
 import IntlProvider from '../shared/components/IntlProvider';
 import ReactHotLoader from './components/ReactHotLoader';
 import DemoApp from '../shared/components/DemoApp';
-import TaskRoutesExecutor from './components/TaskRoutesExecutor';
 import { registerLocaleData, polyfillIntlApi } from '../shared/utils/intl';
 import { selectIntlLocale } from '../shared/reducers/intl';
-import { safeConfigGet } from '../shared/utils/config';
 
 // Get the DOM Element that will host our React application.
 const container = document.querySelector('#app');
@@ -52,17 +50,17 @@ function renderApp(TheApp) {
   // to do as it will ensure that our React checksum for the client will match
   // the content returned by the server.
   // @see https://github.com/ctrlplusb/code-split-component
-  return createApp().then(({ store, codeSplitState }) =>
-    render(
+  return createApp().then(({ store, codeSplitState }) => {
+    const app = (
       <ReactHotLoader>
         <CodeSplitProvider state={codeSplitState}>
-          <Provider store={store}>
+          <ReduxProvider store={store}>
             <IntlProvider>
               <BrowserRouter>
                 <TheApp />
               </BrowserRouter>
             </IntlProvider>
-          </Provider>
+          </ReduxProvider>
         </CodeSplitProvider>
       </ReactHotLoader>
     );

@@ -61,10 +61,6 @@ async function reactApplicationMiddleware(request: $Request, response: $Response
   // query for the results of the render.
   const reactRouterContext = createServerRenderContext();
 
-  // First create a context for <ServerRouter>, which will allow us to
-  // query for the results of the render.
-  const reactRouterContext = createServerRenderContext();
-
   // We also create a context for our <CodeSplitProvider> which will allow us
   // to query which chunks/modules were used during the render process.
   const codeSplitContext = createRenderContext();
